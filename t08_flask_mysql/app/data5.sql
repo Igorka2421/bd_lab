@@ -5,7 +5,7 @@ CREATE TRIGGER AfterUpdateRentalAgency
 AFTER UPDATE
 ON rental_agency FOR EACH ROW
 BEGIN
-    INSERT INTO RentalAgencyCopy(IDRentalAgency, OldHead, newHead, OldPhone, newPhone, Action, TimeStamp,User)
+    INSERT INTO rental_agency_copy(IDRentalAgency, OldHead, newHead, OldPhone, newPhone, Action, TimeStamp,User)
     VALUES(OLD.Id, OLD.rental_agency_head, NEW.rental_agency_head, OLD.phone, NEW.phone, 'update', NOW(), User());
 END //
 DELIMITER ;
@@ -37,19 +37,28 @@ END //
 DELIMITER ;
 
 DELIMITER //
-CREATE FUNCTION AveragePriceRent()
-RETURNS DECIMAL(8,2)
-BEGIN
-	RETURN(SELECT AVG(total_price) From Rent)
-END
-DELIMITER ;
-
 
 DELIMITER //
+
+CREATE FUNCTION average_rent_price()
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE avg_price DECIMAL(8,2);
+    SELECT AVG(total_price) INTO avg_price FROM Rent;
+    RETURN avg_price;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
 CREATE PROCEDURE AVERAGE_RENT_PRICE()
 BEGIN
-	SELECT AveragePriceRent();
-END //
+    SELECT average_rent_price();
+END 
+//
+
 DELIMITER ;
 
 DROP PROCEDURE IF EXISTS CreateDynamicTableFromClient;
